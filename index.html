@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vidriera VentaniYA - Panel y Avisos Fijos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0c0f1d;
+      --panel-bg: #161b33;
+      --neon-cyan: #00f3ff;
+      --neon-orange: #ff9900;
+      --card-bg: #1c2340;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 15px;
+      background-color: var(--bg-color);
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 10px var(--neon-cyan);
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+    }
+
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--neon-cyan);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .tab-btn.active {
+      background: var(--neon-cyan);
+      color: #000;
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+
+    .view-section {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    /* ESTILOS DEL PANEL DE CARGA (ADMIN) */
+    .admin-container {
+      background: var(--panel-bg);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 153, 0, 0.3);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.85rem;
+      color: #a0aec0;
+      font-weight: bold;
+    }
+
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #2d3748;
+      background: #0f1322;
+      color: #fff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 10px;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .btn-save {
+      background: var(--neon-orange);
+      color: #000;
+      box-shadow: 0 0 10px var(--neon-orange);
+    }
+
+    /* ESTILOS DE LA VIDRIERA PÚBLICA (VITRINA DE AVISOS) */
+    .vitrina-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .avisos-card {
+      background: var(--panel-bg);
+      border-radius: 10px;
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .avisos-card canvas {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      background: #000;
+      margin-bottom: 10px;
+    }
+
+    .btn-del {
+      background: #ff4444;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #a0aec0;
+      grid-column: 1 / -1;
+      font-size: 1.1rem;
+      padding: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🏢 Vidriera VentaniYA — Sistema de 100 Avisos Fijos</h1>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('vitrina')">👁️ Ver Vidriera Pública</button>
+    <button class="tab-btn" onclick="switchTab('admin')">➕ Subir / Crear Aviso</button>
+  </div>
+
+  <!-- SECCIÓN 1: VITRINA PÚBLICA (LO QUE SE VE EN TODOS LADOS) -->
+  <div id="vitrinaView" class="view-section active">
+    <div class="vitrina-grid" id="vitrinaContainer">
+      <!-- Los avisos se cargan solos acá -->
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: PANEL DE CARGA (DESDE AFUERA) -->
+  <div id="adminView" class="view-section">
+    <div class="admin-container">
+      <h3 style="color: var(--neon-orange); margin-top:0;">📤 Subir Nuevo Aviso a la Vidriera</h3>
+      
+      <div class="form-group">
+        <label>🖼️ Seleccionar Foto de Producto / Estante:</label>
+        <input type="file" id="subImage" accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label>📍 Dirección Comercial:</label>
+        <input type="text" id="subDir" value="Paseo del Este - Local 12">
+      </div>
+
+      <div class="form-group">
+        <label>📞 Teléfono / WhatsApp:</label>
+        <input type="text" id="subTel" value="+54 9 223 555-1234">
+      </div>
+
+      <div class="form-group">
+        <label>✉️ Correo / Contacto:</label>
+        <input type="text" id="subMail" value="contacto@estantesjet.com">
+      </div>
+
+      <button class="btn btn-save" onclick="crearAviso()">🚀 PUBLICAR AVISO FIJO</button>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+
+      if (tab === 'vitrina') {
+        document.querySelector('.nav-tabs button:nth-child(1)').classList.add('active');
+        document.getElementById('vitrinaView').classList.add('active');
+        renderVitrina();
+      } else {
+        document.querySelector('.nav-tabs button:nth-child(2)').classList.add('active');
+        document.getElementById('adminView').classList.add('active');
+      }
+    }
+
+    // Obtener base de datos de avisos desde localStorage
+    function getAvisos() {
+      try {
+        const data = localStorage.getItem('ventaniya_avisos_fijos');
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveAvisos(avisos) {
+      localStorage.setItem('ventaniya_avisos_fijos', JSON.stringify(avisos));
+    }
+
+    // Subir y procesar la imagen para transformarla en un cartel fijo definitivo
+    function crearAviso() {
+      const fileInput = document.getElementById('subImage');
+      const dir = document.getElementById('subDir').value;
+      const tel = document.getElementById('subTel').value;
+      const mail = document.getElementById('subMail').value;
+
+      if (fileInput.files.length === 0) {
+        alert('¡Por favor elegí una foto primero!');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const imgDataUrl = e.target.result;
+        
+        // Creamos un canvas temporal invisible para quemar los datos en la imagen y hacerla fija
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 1000;
+        tempCanvas.height = 750;
+        const tCtx = tempCanvas.getContext('2d');
+
+        const img = new Image();
+        img.onload = function() {
+          // 1. Dibujar imagen de fondo
+          tCtx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
+
+          // 2. Degradado inferior
+          const grad = tCtx.createLinearGradient(0, tempCanvas.height - 180, 0, tempCanvas.height);
+          grad.addColorStop(0, 'rgba(0,0,0,0)');
+          grad.addColorStop(1, 'rgba(0,0,0,0.85)');
+          tCtx.fillStyle = grad;
+          tCtx.fillRect(0, tempCanvas.height - 180, tempCanvas.width, 180);
+
+          // 3. Fecha y hora del aviso
+          const now = new Date();
+          const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+          const dateStr = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase();
+
+          tCtx.font = '900 38px "Orbitron", monospace';
+          tCtx.fillStyle = '#00f3ff';
+          tCtx.shadowColor = '#00f3ff';
+          tCtx.shadowBlur = 10;
+          tCtx.fillText(timeStr, 30, tempCanvas.height - 95);
+
+          tCtx.font = '700 15px "Roboto", sans-serif';
+          tCtx.fillStyle = '#fff';
+          tCtx.fillText(dateStr, 30, tempCanvas.height - 65);
+
+          // 4. Estampa de marca
+          tCtx.save();
+          const stampX = tempCanvas.width - 120;
+          const stampY = tempCanvas.height - 95;
+          tCtx.strokeStyle = '#00f3ff';
+          tCtx.shadowBlur = 8;
+          tCtx.lineWidth = 3;
+          tCtx.beginPath();
+          tCtx.arc(stampX, stampY, 55, 0, Math.PI * 2);
+          tCtx.stroke();
+
+          tCtx.font = '900 10px "Orbitron", sans-serif';
+          tCtx.fillStyle = '#00f3ff';
+          tCtx.textAlign = 'center';
+          tCtx.fillText("VentaniYA", stampX, stampY - 10);
+          tCtx.font = '700 8px "Roboto", sans-serif';
+          tCtx.fillText("SOLUCIONES", stampX, stampY + 5);
+          tCtx.font = '900 14px "Orbitron", sans-serif';
+          tCtx.fillText("1001", stampX, stampY + 22);
+          tCtx.restore();
+
+          // 5. Cuadro de datos comerciales arriba
+          tCtx.fillStyle = 'rgba(12, 15, 29, 0.85)';
+          tCtx.strokeStyle = '#00f3ff';
+          tCtx.lineWidth = 1;
+          tCtx.fillRect(25, 20, tempCanvas.width - 50, 80);
+          tCtx.strokeRect(25, 20, tempCanvas.width - 50, 80);
+
+          tCtx.textAlign = 'left';
+          tCtx.font = '700 15px "Roboto", sans-serif';
+          tCtx.fillStyle = '#ffffff';
+          tCtx.shadowBlur = 0;
+          tCtx.fillText(`📍 Dir: ${dir}`, 45, 45);
+          tCtx.fillText(`📞 Tel: ${tel}`, 45, 70);
+
+          // Guardar resultado final comprimido en la base de datos local
+          const finalImageCode = tempCanvas.toDataURL('image/jpeg', 0.85);
+          
+          const nuevosAvisos = getAvisos();
+          nuevosAvisos.unshift({
+            id: Date.now(),
+            imagen: finalImageCode,
+            dir: dir,
+            tel: tel
+          });
+
+          // Limitar a 100 avisos para que no sature la memoria
+          if (nuevosAvisos.length > 100) nuevosAvisos.pop();
+
+          saveAvisos(nuevosAvisos);
+
+          alert('¡Aviso publicado y fijado con éxito!');
+          fileInput.value = '';
+          switchTab('vitrina');
+        };
+        img.src = imgDataUrl;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Renderizar la vidrina pública con todos los avisos fijos
+    function renderVitrina() {
+      const container = document.getElementById('vitrinaContainer');
+      const avisos = getAvisos();
+
+      container.innerHTML = '';
+
+      if (avisos.length === 0) {
+        container.innerHTML = '<div class="empty-msg">📭 No hay avisos publicados todavía.<br>Entá a <b>"Subir / Crear Aviso"</b> para cargar el primero.</div>';
+        return;
+      }
+
+      avisos.forEach((aviso) => {
+        const card = document.createElement('div');
+        card.className = 'avisos-card';
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 1000;
+        canvas.height = 750;
+        const ctx = canvas.getContext('2d');
+
+        const img = new Image();
+        img.onload = function() {
+          ctx.drawImage(img, 0, 0);
+        };
+        img.src = aviso.imagen;
+
+        card.appendChild(canvas);
+
+        // Botón opcional para borrar si querés gestionar los 100 avisos
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-del';
+        delBtn.textContent = '🗑️ Eliminar aviso';
+        delBtn.onclick = function() {
+          if (confirm('¿Seguro que querés borrar este aviso?')) {
+            const actualizados = getAvisos().filter(a => a.id !== aviso.id);
+            saveAvisos(actualizados);
+            renderVitrina();
+          }
+        };
+        card.appendChild(delBtn);
+
+        container.appendChild(card);
+      });
+    }
+
+    // Cargar la vidriera al iniciar
+    renderVitrina();
+  </script>
+</body>
+</html>
