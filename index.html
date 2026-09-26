@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vidriera VentaniYA - Panel y Avisos Fijos</title>
+  <title>Vidriera VentaniYA - Sincronizada en la Nube</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -67,7 +67,6 @@
       display: block;
     }
 
-    /* ESTILOS DEL PANEL DE CARGA (ADMIN) */
     .admin-container {
       background: var(--panel-bg);
       padding: 20px;
@@ -89,7 +88,7 @@
       font-weight: bold;
     }
 
-    input[type="text"], input[type="file"] {
+    input[type="text"], input[type="file"], input[type="password"] {
       width: 100%;
       padding: 10px;
       border-radius: 6px;
@@ -116,7 +115,6 @@
       box-shadow: 0 0 10px var(--neon-orange);
     }
 
-    /* ESTILOS DE LA VIDRIERA PÚBLICA (VITRINA DE AVISOS) */
     .vitrina-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -143,15 +141,11 @@
       margin-bottom: 10px;
     }
 
-    .btn-del {
-      background: #ff4444;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      margin-top: 5px;
+    .status-msg {
+      text-align: center;
+      color: var(--neon-cyan);
+      margin-bottom: 15px;
+      font-size: 0.9rem;
     }
 
     .empty-msg {
@@ -165,25 +159,28 @@
 </head>
 <body>
 
-  <h1>🏢 Vidriera VentaniYA — Sistema de 100 Avisos Fijos</h1>
+  <h1>🏢 Vidriera VentaniYA — Sincronizada en la Nube</h1>
 
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('vitrina')">👁️ Ver Vidriera Pública</button>
-    <button class="tab-btn" onclick="switchTab('admin')">➕ Subir / Crear Aviso</button>
+    <button class="tab-btn" onclick="switchTab('admin')">➕ Subir Aviso (Nube)</button>
   </div>
 
-  <!-- SECCIÓN 1: VITRINA PÚBLICA (LO QUE SE VE EN TODOS LADOS) -->
   <div id="vitrinaView" class="view-section active">
-    <div class="vitrina-grid" id="vitrinaContainer">
-      <!-- Los avisos se cargan solos acá -->
-    </div>
+    <div id="statusVitrina" class="status-msg">Cargando avisos globales desde GitHub...</div>
+    <div class="vitrina-grid" id="vitrinaContainer"></div>
   </div>
 
-  <!-- SECCIÓN 2: PANEL DE CARGA (DESDE AFUERA) -->
   <div id="adminView" class="view-section">
     <div class="admin-container">
-      <h3 style="color: var(--neon-orange); margin-top:0;">📤 Subir Nuevo Aviso a la Vidriera</h3>
+      <h3 style="color: var(--neon-orange); margin-top:0;">📤 Subir Aviso Global (Visible en todos lados)</h3>
       
+      <div class="form-group">
+        <label>🔑 GitHub Token (Personal Access Token de tu cuenta):</label>
+        <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+        <small style="color: #a0aec0; font-size: 0.75rem;">Se guarda solo en tu navegador para autorizar la subida.</small>
+      </div>
+
       <div class="form-group">
         <label>🖼️ Seleccionar Foto de Producto / Estante:</label>
         <input type="file" id="subImage" accept="image/*">
@@ -199,16 +196,24 @@
         <input type="text" id="subTel" value="+54 9 223 555-1234">
       </div>
 
-      <div class="form-group">
-        <label>✉️ Correo / Contacto:</label>
-        <input type="text" id="subMail" value="contacto@estantesjet.com">
-      </div>
-
-      <button class="btn btn-save" onclick="crearAviso()">🚀 PUBLICAR AVISO FIJO</button>
+      <button class="btn btn-save" onclick="publicarEnNube()">🚀 PUBLICAR Y GUARDAR EN LA NUBE</button>
     </div>
   </div>
 
   <script>
+    const GITHUB_USER = 'ofispaciospaseo-del';
+    const GITHUB_REPO = 'estanteriavidriera';
+    const DATA_FILE_PATH = 'avisos.json';
+
+    // Recordar el token en este dispositivo si ya lo ingresó
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedToken = localStorage.getItem('ventaniya_gh_token');
+      if (savedToken) {
+        document.getElementById('githubToken').value = savedToken;
+      }
+      cargarAvisosGlobales();
+    });
+
     function switchTab(tab) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
@@ -216,38 +221,52 @@
       if (tab === 'vitrina') {
         document.querySelector('.nav-tabs button:nth-child(1)').classList.add('active');
         document.getElementById('vitrinaView').classList.add('active');
-        renderVitrina();
+        cargarAvisosGlobales();
       } else {
         document.querySelector('.nav-tabs button:nth-child(2)').classList.add('active');
         document.getElementById('adminView').classList.add('active');
       }
     }
 
-    // Obtener base de datos de avisos desde localStorage
-    function getAvisos() {
+    // Cargar la lista global de avisos desde el archivo JSON del repositorio
+    async function cargarAvisosGlobales() {
+      const status = document.getElementById('statusVitrina');
+      status.textContent = 'Actualizando vitrina desde la nube...';
+      
       try {
-        const data = localStorage.getItem('ventaniya_avisos_fijos');
-        return data ? JSON.parse(data) : [];
+        const url = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${DATA_FILE_PATH}?t=${Date.now()}`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const avisos = await res.json();
+          renderVitrina(avisos);
+          status.textContent = `✅ Sincronizado: ${avisos.length} avisos activos en la nube.`;
+        } else {
+          renderVitrina([]);
+          status.textContent = '📭 Todavía no hay avisos en el archivo global.';
+        }
       } catch (e) {
-        return [];
+        renderVitrina([]);
+        status.textContent = '⚠️ Conectando con la nube... (si es la primera vez, subí un aviso para crear el archivo).';
       }
     }
 
-    function saveAvisos(avisos) {
-      localStorage.setItem('ventaniya_avisos_fijos', JSON.stringify(avisos));
-    }
-
-    // Subir y procesar la imagen para transformarla en un cartel fijo definitivo
-    function crearAviso() {
+    // Publicar aviso procesando la imagen y haciendo commit automático al repo
+    async function publicarEnNube() {
+      const token = document.getElementById('githubToken').value.trim();
       const fileInput = document.getElementById('subImage');
       const dir = document.getElementById('subDir').value;
       const tel = document.getElementById('subTel').value;
-      const mail = document.getElementById('subMail').value;
 
-      if (fileInput.files.length === 0) {
-        alert('¡Por favor elegí una foto primero!');
+      if (!token) {
+        alert('¡Por favor ingresá tu Token de GitHub para poder guardar en la nube!');
         return;
       }
+      if (fileInput.files.length === 0) {
+        alert('¡Por favor elegí una foto!');
+        return;
+      }
+
+      localStorage.setItem('ventaniya_gh_token', token);
 
       const file = fileInput.files[0];
       const reader = new FileReader();
@@ -255,14 +274,13 @@
       reader.onload = function(e) {
         const imgDataUrl = e.target.result;
         
-        // Creamos un canvas temporal invisible para quemar los datos en la imagen y hacerla fija
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = 1000;
         tempCanvas.height = 750;
         const tCtx = tempCanvas.getContext('2d');
 
         const img = new Image();
-        img.onload = function() {
+        img.onload = async function() {
           // 1. Dibujar imagen de fondo
           tCtx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
 
@@ -273,7 +291,7 @@
           tCtx.fillStyle = grad;
           tCtx.fillRect(0, tempCanvas.height - 180, tempCanvas.width, 180);
 
-          // 3. Fecha y hora del aviso
+          // 3. Fecha y hora
           const now = new Date();
           const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
           const dateStr = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase();
@@ -288,7 +306,7 @@
           tCtx.fillStyle = '#fff';
           tCtx.fillText(dateStr, 30, tempCanvas.height - 65);
 
-          // 4. Estampa de marca
+          // 4. Estampa VentaniYA
           tCtx.save();
           const stampX = tempCanvas.width - 120;
           const stampY = tempCanvas.height - 95;
@@ -309,7 +327,7 @@
           tCtx.fillText("1001", stampX, stampY + 22);
           tCtx.restore();
 
-          // 5. Cuadro de datos comerciales arriba
+          // 5. Cuadro comercial superior
           tCtx.fillStyle = 'rgba(12, 15, 29, 0.85)';
           tCtx.strokeStyle = '#00f3ff';
           tCtx.lineWidth = 1;
@@ -323,40 +341,78 @@
           tCtx.fillText(`📍 Dir: ${dir}`, 45, 45);
           tCtx.fillText(`📞 Tel: ${tel}`, 45, 70);
 
-          // Guardar resultado final comprimido en la base de datos local
           const finalImageCode = tempCanvas.toDataURL('image/jpeg', 0.85);
-          
-          const nuevosAvisos = getAvisos();
-          nuevosAvisos.unshift({
-            id: Date.now(),
-            imagen: finalImageCode,
-            dir: dir,
-            tel: tel
-          });
 
-          // Limitar a 100 avisos para que no sature la memoria
-          if (nuevosAvisos.length > 100) nuevosAvisos.pop();
+          alert('📤 Subiendo aviso y sincronizando con la nube de GitHub...');
 
-          saveAvisos(nuevosAvisos);
+          try {
+            // Obtener el archivo JSON actual de GitHub para actualizarlo
+            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${DATA_FILE_PATH}`;
+            let sha = null;
+            let avisosActuales = [];
 
-          alert('¡Aviso publicado y fijado con éxito!');
-          fileInput.value = '';
-          switchTab('vitrina');
+            const getRes = await fetch(apiUrl, {
+              headers: { 'Authorization': `token ${token}` }
+            });
+
+            if (getRes.ok) {
+              const fileData = await getRes.json();
+              sha = fileData.sha;
+              const decoded = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+              avisosActuales = decoded;
+            }
+
+            // Agregar nuevo aviso al principio de la lista global
+            avisosActuales.unshift({
+              id: Date.now(),
+              imagen: finalImageCode,
+              dir: dir,
+              tel: tel
+            });
+
+            if (avisosActuales.length > 100) avisosActuales.pop();
+
+            // Enviar archivo actualizado al repositorio de GitHub mediante API
+            const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(avisosActuales))));
+
+            const putRes = await fetch(apiUrl, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `token ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: 'Actualización automática de avisos globales VentaniYA',
+                content: contentEncoded,
+                sha: sha
+              })
+            });
+
+            if (putRes.ok) {
+              alert('✅ ¡Aviso guardado en la nube con éxito! Ya se ve en todos lados.');
+              fileInput.value = '';
+              switchTab('vitrina');
+            } else {
+              const errJson = await putRes.json();
+              alert('❌ Error al guardar en GitHub: ' + (errJson.message || 'Token inválido o sin permisos.'));
+            }
+
+          } catch (err) {
+            alert('❌ Error de conexión al sincronizar: ' + err.message);
+          }
         };
         img.src = imgDataUrl;
       };
       reader.readAsDataURL(file);
     }
 
-    // Renderizar la vidrina pública con todos los avisos fijos
-    function renderVitrina() {
+    // Dibujar los avisos en la pantalla pública
+    function renderVitrina(avisos) {
       const container = document.getElementById('vitrinaContainer');
-      const avisos = getAvisos();
-
       container.innerHTML = '';
 
-      if (avisos.length === 0) {
-        container.innerHTML = '<div class="empty-msg">📭 No hay avisos publicados todavía.<br>Entá a <b>"Subir / Crear Aviso"</b> para cargar el primero.</div>';
+      if (!avisos || avisos.length === 0) {
+        container.innerHTML = '<div class="empty-msg">📭 No hay avisos en la nube todavía.<br>Entrá a <b>"Subir Aviso (Nube)"</b> para cargar el primero.</div>';
         return;
       }
 
@@ -376,26 +432,9 @@
         img.src = aviso.imagen;
 
         card.appendChild(canvas);
-
-        // Botón opcional para borrar si querés gestionar los 100 avisos
-        const delBtn = document.createElement('button');
-        delBtn.className = 'btn-del';
-        delBtn.textContent = '🗑️ Eliminar aviso';
-        delBtn.onclick = function() {
-          if (confirm('¿Seguro que querés borrar este aviso?')) {
-            const actualizados = getAvisos().filter(a => a.id !== aviso.id);
-            saveAvisos(actualizados);
-            renderVitrina();
-          }
-        };
-        card.appendChild(delBtn);
-
         container.appendChild(card);
       });
     }
-
-    // Cargar la vidriera al iniciar
-    renderVitrina();
   </script>
 </body>
 </html>
