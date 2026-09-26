@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vidriera VentaniYA - Sincronización Automática</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <title>Vidriera VentaniYA - Avisos Fijos Oficiales</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-color: #0c0f1d;
@@ -17,7 +17,7 @@
 
     body {
       margin: 0;
-      padding: 15px;
+      padding: 20px;
       background-color: var(--bg-color);
       color: #fff;
       font-family: 'Roboto', sans-serif;
@@ -26,33 +26,33 @@
     h1 {
       margin: 0 0 5px 0;
       color: var(--neon-cyan);
-      text-shadow: 0 0 10px var(--neon-cyan);
+      text-shadow: 0 0 15px var(--neon-cyan);
       text-align: center;
       font-family: 'Orbitron', sans-serif;
-      font-size: 1.4rem;
+      font-size: 1.8rem;
     }
 
     p.sub {
       text-align: center;
       color: #a0aec0;
-      font-size: 0.9rem;
-      margin-bottom: 25px;
+      font-size: 1rem;
+      margin-bottom: 30px;
     }
 
     .vitrina-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 20px;
-      max-width: 1200px;
+      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+      gap: 25px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
     .avisos-card {
       background: var(--panel-bg);
-      border-radius: 10px;
-      border: 1px solid rgba(0, 243, 255, 0.3);
+      border-radius: 12px;
+      border: 2px solid rgba(0, 243, 255, 0.4);
       overflow: hidden;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      box-shadow: 0 0 25px rgba(0,0,0,0.7);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -62,49 +62,49 @@
     .avisos-card canvas {
       width: 100%;
       height: auto;
-      border-radius: 6px;
+      border-radius: 8px;
       background: #000;
     }
 
     .status-msg {
       text-align: center;
       color: var(--neon-cyan);
-      margin-bottom: 20px;
-      font-size: 0.95rem;
+      margin-bottom: 25px;
+      font-size: 1.1rem;
+      font-family: 'Orbitron', sans-serif;
     }
 
     .empty-msg {
       text-align: center;
       color: #a0aec0;
       grid-column: 1 / -1;
-      font-size: 1.1rem;
-      padding: 40px;
+      font-size: 1.3rem;
+      padding: 50px;
     }
   </style>
 </head>
 <body>
 
-  <h1>🏢 Vidriera VentaniYA — Sincronización Automática</h1>
-  <p class="sub">Cada foto que agregues a tu repositorio se transforma sola en un aviso fijo global.</p>
+  <h1>🏢 Vidriera VentaniYA — Sistema Oficial</h1>
+  <p class="sub">Avisos fijos sincronizados automáticamente con milisegundos, fecha y hash de seguridad.</p>
 
-  <div id="status" class="status-msg">Escaneando repositorio en busca de avisos...</div>
+  <div id="status" class="status-msg">Conectando con el repositorio 'avisosvidriera'...</div>
 
   <div class="vitrina-grid" id="vitrinaContainer">
-    <!-- Los avisos se auto-generan acá -->
+    <!-- Los avisos se generan acá con letras grandes y datos exactos -->
   </div>
 
   <script>
-    // TUS DATOS DE GITHUB (Públicos, sin claves ni tokens)
+    // TUS DATOS CORRECTOS DE GITHUB
     const GITHUB_USER = 'ofispaciospaseo-del';
-    const GITHUB_REPO = 'estanteriavidriera';
+    const GITHUB_REPO = 'avisosvidriera';
 
-    async function escanearYReescribirVidriera() {
+    async function generarVidrieraOficial() {
       const container = document.getElementById('vitrinaContainer');
       const status = document.getElementById('status');
       container.innerHTML = '';
 
       try {
-        // Consultamos la API pública de GitHub para listar los archivos de la raíz del repositorio
         const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
         const response = await fetch(apiUrl);
         
@@ -114,28 +114,28 @@
 
         const archivos = await response.json();
         
-        // Filtramos solo los archivos que sean imágenes (jpg, jpeg, png)
+        // Filtrar solo imágenes
         const fotos = archivos.filter(file => {
           const name = file.name.toLowerCase();
           return file.type === 'file' && (name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.png'));
         });
 
         if (fotos.length === 0) {
-          container.innerHTML = '<div class="empty-msg">📭 No hay fotos en la raíz del repositorio todavía.<br>Subí tus imágenes directo a GitHub y aparecerán aquí automáticamente.</div>';
+          container.innerHTML = '<div class="empty-msg">📭 No hay fotos en la raíz del repositorio.<br>Subí tus imágenes a GitHub y aparecerán aquí automáticamente en grande.</div>';
           status.textContent = '⚠️ Sin avisos detectados.';
           return;
         }
 
-        status.textContent = `✅ ¡Encontradas ${fotos.length} fotos! Procesando carteles fijos...`;
+        status.textContent = `✅ ¡${fotos.length} avisos detectados! Armando carteles de alta precisión...`;
 
-        // Recorremos cada foto encontrada y le aplicamos el formato fijo
         for (const foto of fotos) {
           const card = document.createElement('div');
           card.className = 'avisos-card';
 
           const canvas = document.createElement('canvas');
-          canvas.width = 1000;
-          canvas.height = 750;
+          // Canvas en alta resolución para que las letras grandes se vean hiper nítidas
+          canvas.width = 1200;
+          canvas.height = 900;
           const tCtx = canvas.getContext('2d');
 
           const img = new Image();
@@ -143,65 +143,74 @@
 
           await new Promise((resolve) => {
             img.onload = function() {
-              // 1. Dibujar imagen de fondo
+              // 1. Imagen de fondo
               tCtx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-              // 2. Franja / degradado inferior
-              const grad = tCtx.createLinearGradient(0, canvas.height - 180, 0, canvas.height);
+              // 2. Franja inferior oscura grande para lectura perfecta
+              const grad = tCtx.createLinearGradient(0, canvas.height - 240, 0, canvas.height);
               grad.addColorStop(0, 'rgba(0,0,0,0)');
-              grad.addColorStop(1, 'rgba(0,0,0,0.85)');
+              grad.addColorStop(1, 'rgba(0,0,0,0.92)');
               tCtx.fillStyle = grad;
-              tCtx.fillRect(0, canvas.height - 180, canvas.width, 180);
+              tCtx.fillRect(0, canvas.height - 240, canvas.width, 240);
 
-              // 3. Línea de tiempo / Hora y Fecha
+              // 3. Fecha completa, hora exacta y milisegundos reales
               const now = new Date();
-              const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-              const dateStr = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase();
+              const fechaCompleta = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+              const horas = String(now.getHours()).padStart(2, '0');
+              const minutos = String(now.getMinutes()).padStart(2, '0');
+              const segundos = String(now.getSeconds()).padStart(2, '0');
+              const milisegundos = String(now.getMilliseconds()).padStart(3, '0');
+              const tiempoPreciso = `${horas}:${minutos}:${segundos}.${milisegundos}`;
 
-              tCtx.font = '900 38px "Orbitron", monospace';
+              // 4. Hash único anticopia / identificador basado en el nombre del archivo
+              let hashGenerado = "HASH#" + Math.abs(hashCode(foto.name + now.getDate())).toString(16).toUpperCase().padStart(8, '0');
+
+              // --- LETRAS GRANDES Y CLARAS ABAJO ---
+              tCtx.font = '900 46px "Orbitron", monospace';
               tCtx.fillStyle = '#00f3ff';
               tCtx.shadowColor = '#00f3ff';
-              tCtx.shadowBlur = 10;
-              tCtx.fillText(timeStr, 30, canvas.height - 95);
+              tCtx.shadowBlur = 15;
+              tCtx.fillText(tiempoPreciso, 40, canvas.height - 130);
 
-              tCtx.font = '700 15px "Roboto", sans-serif';
-              tCtx.fillStyle = '#fff';
-              tCtx.fillText(dateStr, 30, canvas.height - 65);
+              tCtx.font = '700 22px "Roboto", sans-serif';
+              tCtx.fillStyle = '#ffffff';
+              tCtx.shadowBlur = 5;
+              tCtx.fillText(`📅 ${fechaCompleta}   |   🔐 ${hashGenerado}`, 40, canvas.height - 80);
 
-              // 4. Sello de marca VentaniYA
+              // 5. Sello circular VentaniYA grande a la derecha
               tCtx.save();
-              const stampX = canvas.width - 120;
-              const stampY = canvas.height - 95;
+              const stampX = canvas.width - 150;
+              const stampY = canvas.height - 120;
               tCtx.strokeStyle = '#00f3ff';
-              tCtx.shadowBlur = 8;
-              tCtx.lineWidth = 3;
+              tCtx.shadowBlur = 12;
+              tCtx.lineWidth = 4;
               tCtx.beginPath();
-              tCtx.arc(stampX, stampY, 55, 0, Math.PI * 2);
+              tCtx.arc(stampX, stampY, 70, 0, Math.PI * 2);
               tCtx.stroke();
 
-              tCtx.font = '900 10px "Orbitron", sans-serif';
+              tCtx.font = '900 13px "Orbitron", sans-serif';
               tCtx.fillStyle = '#00f3ff';
               tCtx.textAlign = 'center';
-              tCtx.fillText("VentaniYA", stampX, stampY - 10);
-              tCtx.font = '700 8px "Roboto", sans-serif';
-              tCtx.fillText("SOLUCIONES", stampX, stampY + 5);
-              tCtx.font = '900 14px "Orbitron", sans-serif';
-              tCtx.fillText("1001", stampX, stampY + 22);
+              tCtx.fillText("VentaniYA", stampX, stampY - 18);
+              tCtx.font = '700 11px "Roboto", sans-serif';
+              tCtx.fillText("OFICIAL", stampX, stampY + 2);
+              tCtx.font = '900 18px "Orbitron", sans-serif';
+              tCtx.fillText("1001", stampX, stampY + 26);
               tCtx.restore();
 
-              // 5. Cuadro comercial superior fijo
-              tCtx.fillStyle = 'rgba(12, 15, 29, 0.85)';
+              // 6. Cuadro comercial superior con letras grandes y legibles
+              tCtx.fillStyle = 'rgba(12, 15, 29, 0.90)';
               tCtx.strokeStyle = '#00f3ff';
-              tCtx.lineWidth = 1;
-              tCtx.fillRect(25, 20, canvas.width - 50, 80);
-              tCtx.strokeRect(25, 20, canvas.width - 50, 80);
+              tCtx.lineWidth = 2;
+              tCtx.fillRect(35, 30, canvas.width - 70, 100);
+              tCtx.strokeRect(35, 30, canvas.width - 70, 100);
 
               tCtx.textAlign = 'left';
-              tCtx.font = '700 15px "Roboto", sans-serif';
+              tCtx.font = '900 24px "Roboto", sans-serif';
               tCtx.fillStyle = '#ffffff';
               tCtx.shadowBlur = 0;
-              tCtx.fillText(`📍 Dir: Paseo del Este - Local 12`, 45, 45);
-              tCtx.fillText(`📞 Tel: +54 9 223 555-1234`, 45, 70);
+              tCtx.fillText(`📍 Dir: Paseo del Este - Local 12`, 60, 70);
+              tCtx.fillText(`📞 Tel: +54 9 223 555-1234`, 60, 108);
 
               resolve();
             };
@@ -215,15 +224,25 @@
           container.appendChild(card);
         }
 
-        status.textContent = `✅ Vidriera sincronizada: ${fotos.length} avisos fijos activos y visibles en todos lados.`;
+        status.textContent = `✅ Vidriera actualizada: ${fotos.length} avisos oficiales activos.`;
 
       } catch (err) {
-        status.textContent = '⚠️ Error al escanear el repositorio. Asegurate de que sea público.';
-        container.innerHTML = '<div class="empty-msg">No se pudo cargar la lista de fotos automáticamente.<br>Verificá la conexión.</div>';
+        status.textContent = '⚠️ Error al conectar con el repositorio. Verificá que sea público.';
+        container.innerHTML = '<div class="empty-msg">No se pudo cargar la vidriera.<br>Comprobá que el repositorio se llame "avisosvidriera".</div>';
       }
     }
 
-    escanearYReescribirVidriera();
+    // Función auxiliar para generar un hash numérico estable por archivo
+    function hashCode(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return hash;
+    }
+
+    generarVidrieraOficial();
   </script>
 </body>
 </html>
