@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generador de Avisos Fijos - VentaniYA</title>
+  <title>Vidriera VentaniYA - Agency Protoc System</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -21,9 +21,6 @@
       background-color: var(--bg-color);
       color: #fff;
       font-family: 'Roboto', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
 
     h1 {
@@ -32,42 +29,42 @@
       text-shadow: 0 0 15px var(--neon-cyan);
       text-align: center;
       font-family: 'Orbitron', sans-serif;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
     }
 
     p.sub {
       text-align: center;
       color: #a0aec0;
-      font-size: 0.95rem;
+      font-size: 1rem;
       margin-bottom: 25px;
     }
 
-    .card {
+    /* Panel de control editable superior */
+    .control-panel {
       background: var(--panel-bg);
-      padding: 20px;
-      border-radius: 12px;
       border: 2px solid rgba(0, 243, 255, 0.4);
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 0 25px rgba(0,0,0,0.7);
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto 30px auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
     }
 
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    label {
+    .control-group label {
       display: block;
       margin-bottom: 6px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--neon-cyan);
-      font-weight: bold;
       font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
     }
 
-    input[type="file"], input[type="text"] {
+    .control-group input {
       width: 100%;
-      padding: 12px;
+      padding: 10px 14px;
       border-radius: 6px;
       border: 1px solid #2d3748;
       background: #0f1322;
@@ -75,186 +72,271 @@
       font-size: 1rem;
     }
 
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 1.1rem;
-      cursor: pointer;
-      margin-top: 10px;
-      font-family: 'Orbitron', sans-serif;
-      background: var(--neon-orange);
-      color: #000;
-      box-shadow: 0 0 15px var(--neon-orange);
-      transition: 0.2s;
+    .vitrina-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+      gap: 25px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
-    .btn:hover {
-      opacity: 0.9;
+    .avisos-card {
+      background: var(--panel-bg);
+      border-radius: 12px;
+      border: 2px solid rgba(0, 243, 255, 0.4);
+      overflow: hidden;
+      box-shadow: 0 0 25px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
     }
 
-    .preview-container {
-      margin-top: 25px;
-      width: 100%;
-      max-width: 600px;
-      text-align: center;
-    }
-
-    canvas {
+    .avisos-card canvas {
       width: 100%;
       height: auto;
       border-radius: 8px;
-      border: 2px solid var(--neon-cyan);
       background: #000;
-      display: none;
-      box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
     }
 
-    .btn-download {
-      display: none;
+    .btn-descargar {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
       background: var(--neon-cyan);
       color: #000;
-      box-shadow: 0 0 15px var(--neon-cyan);
-      margin-top: 15px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--neon-cyan);
+      transition: 0.2s;
+    }
+
+    .btn-descargar:hover {
+      opacity: 0.85;
+    }
+
+    .status-msg {
+      text-align: center;
+      color: var(--neon-cyan);
+      margin-bottom: 25px;
+      font-size: 1.1rem;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #a0aec0;
+      grid-column: 1 / -1;
+      font-size: 1.3rem;
+      padding: 50px;
     }
   </style>
 </head>
 <body>
 
-  <h1>🏢 Generador VentaniYA</h1>
-  <p class="sub">Subí tu foto y creá al instante tu aviso fijo con línea de tiempo y sello oficial.</p>
+  <h1>🏢 Vidriera VentaniYA — Agency Protoc System</h1>
+  <p class="sub">Sincronización automatizada con tu repositorio, reloj en vivo y datos editables.</p>
 
-  <div class="card">
-    <div class="form-group">
-      <label>🖼️ Seleccionar Foto:</label>
-      <input type="file" id="fotoInput" accept="image/*">
-    </div>
-
-    <div class="form-group">
+  <!-- Panel editable superior -->
+  <div class="control-panel">
+    <div class="control-group">
       <label>📍 Dirección Comercial:</label>
-      <input type="text" id="dirInput" value="Paseo del Este - Local 12">
+      <input type="text" id="inputDir" value="Paseo del Este - Local 12">
     </div>
-
-    <div class="form-group">
-      <label>📞 Teléfono / WhatsApp:</label>
-      <input type="text" id="telInput" value="+54 9 223 555-1234">
+    <div class="control-group">
+      <label>📞 Teléfono / Contacto:</label>
+      <input type="text" id="inputTel" value="+54 9 223 555-1234">
     </div>
-
-    <button class="btn" onclick="procesarAviso()">⚡ GENERAR AVISO FIJO</button>
   </div>
 
-  <div class="preview-container">
-    <canvas id="canvasAviso" width="1200" height="900"></canvas>
-    <a id="downloadLink" style="text-decoration: none;">
-      <button id="btnDescargar" class="btn btn-download">📥 DESCARGAR AVISO LISTO</button>
-    </a>
+  <div id="status" class="status-msg">Conectando con el repositorio 'avisosvidriera'...</div>
+
+  <div class="vitrina-grid" id="vitrinaContainer">
+    <!-- Las tarjetas se generan dinámicamente -->
   </div>
 
   <script>
-    function procesarAviso() {
-      const fileInput = document.getElementById('fotoInput');
-      const dir = document.getElementById('dirInput').value;
-      const tel = document.getElementById('telInput').value;
+    const GITHUB_USER = 'ofispaciospaseo-del';
+    const GITHUB_REPO = 'avisosvidriera';
 
-      if (fileInput.files.length === 0) {
-        alert('¡Por favor elegí una foto primero!');
-        return;
+    let listaAvisos = [];
+
+    async function inicializarSistema() {
+      const container = document.getElementById('vitrinaContainer');
+      const status = document.getElementById('status');
+
+      try {
+        const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
+        const response = await fetch(apiUrl);
+        
+        if (!response.ok) throw new Error('No se pudo conectar con el repositorio.');
+
+        const archivos = await response.json();
+        const fotos = archivos.filter(file => {
+          const name = file.name.toLowerCase();
+          return file.type === 'file' && (name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.png'));
+        });
+
+        if (fotos.length === 0) {
+          container.innerHTML = '<div class="empty-msg">📭 No hay fotos en el repositorio.<br>Subí tus imágenes a GitHub y aparecerán acá automáticamente.</div>';
+          status.textContent = '⚠️ Sin avisos detectados en el repo.';
+          return;
+        }
+
+        status.textContent = `✅ ¡${fotos.length} avisos sincronizados correctamente!`;
+        container.innerHTML = '';
+        listaAvisos = [];
+
+        for (const foto of fotos) {
+          const card = document.createElement('div');
+          card.className = 'avisos-card';
+
+          const canvas = document.createElement('canvas');
+          canvas.width = 1200;
+          canvas.height = 900;
+
+          const btn = document.createElement('button');
+          btn.className = 'btn-descargar';
+          btn.textContent = '📥 DESCARGAR ESTE AVISO';
+
+          card.appendChild(canvas);
+          card.appendChild(btn);
+          container.appendChild(card);
+
+          // Cargar imagen de fondo
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          
+          await new Promise((resolve) => {
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+            img.src = foto.download_url + `?t=${Date.now()}`;
+          });
+
+          // Hash único basado en el nombre del archivo
+          let hashGenerado = "HASH#" + Math.abs(hashCode(foto.name)).toString(16).toUpperCase().padStart(8, '0');
+
+          listaAvisos.push({
+            img: img,
+            canvas: canvas,
+            ctx: canvas.getContext('2d'),
+            hash: hashGenerado,
+            fileName: foto.name
+          });
+
+          // Evento de descarga individual
+          btn.addEventListener('click', () => {
+            renderizarFrameUnico(listaAvisos[listaAvisos.length - 1]);
+            const link = document.createElement('a');
+            link.download = `aviso_${foto.name.split('.')[0]}_${Date.now()}.jpg`;
+            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.click();
+          });
+        }
+
+        // Iniciar loop del reloj en vivo para todas las tarjetas
+        requestAnimationFrame(loopRelojEnVivo);
+
+      } catch (err) {
+        status.textContent = '⚠️ Error al conectar con el repositorio. Verificá que sea público.';
+        container.innerHTML = '<div class="empty-msg">No se pudo leer el repositorio "avisosvidriera".</div>';
+      }
+    }
+
+    function loopRelojEnVivo() {
+      const dir = document.getElementById('inputDir').value;
+      const tel = document.getElementById('inputTel').value;
+      const now = new Date();
+
+      const fechaCompleta = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const horas = String(now.getHours()).padStart(2, '0');
+      const minutos = String(now.getMinutes()).padStart(2, '0');
+      const segundos = String(now.getSeconds()).padStart(2, '0');
+      const milisegundos = String(now.getMilliseconds()).padStart(3, '0');
+      const tiempoPreciso = `${horas}:${minutos}:${segundos}.${milisegundos}`;
+
+      for (const item of listaAvisos) {
+        dibujarCanvasFrame(item.ctx, item.img, item.hash, tiempoPreciso, fechaCompleta, dir, tel);
       }
 
-      const file = fileInput.files[0];
-      const reader = new FileReader();
+      requestAnimationFrame(loopRelojEnVivo);
+    }
 
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.getElementById('canvasAviso');
-          const tCtx = canvas.getContext('2d');
+    function renderizarFrameUnico(item) {
+      const dir = document.getElementById('inputDir').value;
+      const tel = document.getElementById('inputTel').value;
+      const now = new Date();
+      const fechaCompleta = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const tiempoPreciso = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}.${String(now.getMilliseconds()).padStart(3,'0')}`;
+      
+      dibujarCanvasFrame(item.ctx, item.img, item.hash, tiempoPreciso, fechaCompleta, dir, tel);
+    }
 
-          // 1. Dibujar imagen de fondo adaptada
-          tCtx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    function dibujarCanvasFrame(tCtx, img, hashGenerado, tiempoPreciso, fechaCompleta, dir, tel) {
+      const w = 1200;
+      const h = 900;
 
-          // 2. Franja inferior oscura para lectura perfecta
-          const grad = tCtx.createLinearGradient(0, canvas.height - 240, 0, canvas.height);
-          grad.addColorStop(0, 'rgba(0,0,0,0)');
-          grad.addColorStop(1, 'rgba(0,0,0,0.92)');
-          tCtx.fillStyle = grad;
-          tCtx.fillRect(0, canvas.height - 240, canvas.width, 240);
+      // 1. Imagen de fondo
+      tCtx.clearRect(0, 0, w, h);
+      tCtx.drawImage(img, 0, 0, w, h);
 
-          // 3. Hora exacta con milisegundos y fecha completa
-          const now = new Date();
-          const fechaCompleta = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-          const horas = String(now.getHours()).padStart(2, '0');
-          const minutos = String(now.getMinutes()).padStart(2, '0');
-          const segundos = String(now.getSeconds()).padStart(2, '0');
-          const milisegundos = String(now.getMilliseconds()).padStart(3, '0');
-          const tiempoPreciso = `${horas}:${minutos}:${segundos}.${milisegundos}`;
+      // 2. Franja inferior oscura
+      const grad = tCtx.createLinearGradient(0, h - 240, 0, h);
+      grad.addColorStop(0, 'rgba(0,0,0,0)');
+      grad.addColorStop(1, 'rgba(0,0,0,0.92)');
+      tCtx.fillStyle = grad;
+      tCtx.fillRect(0, h - 240, w, 240);
 
-          // Hash de seguridad único
-          let hashGenerado = "HASH#" + Math.abs(hashCode(file.name + now.getTime())).toString(16).toUpperCase().padStart(8, '0');
+      // 3. Reloj con milisegundos en vivo y hash
+      tCtx.font = '900 46px "Orbitron", monospace';
+      tCtx.fillStyle = '#00f3ff';
+      tCtx.shadowColor = '#00f3ff';
+      tCtx.shadowBlur = 15;
+      tCtx.fillText(tiempoPreciso, 40, h - 130);
 
-          // --- LETRAS GRANDES Y CLARAS ABAJO ---
-          tCtx.font = '900 46px "Orbitron", monospace';
-          tCtx.fillStyle = '#00f3ff';
-          tCtx.shadowColor = '#00f3ff';
-          tCtx.shadowBlur = 15;
-          tCtx.fillText(tiempoPreciso, 40, canvas.height - 130);
+      tCtx.font = '700 22px "Roboto", sans-serif';
+      tCtx.fillStyle = '#ffffff';
+      tCtx.shadowBlur = 5;
+      tCtx.fillText(`📅 ${fechaCompleta}   |   🔐 ${hashGenerado}`, 40, h - 80);
 
-          tCtx.font = '700 22px "Roboto", sans-serif';
-          tCtx.fillStyle = '#ffffff';
-          tCtx.shadowBlur = 5;
-          tCtx.fillText(`📅 ${fechaCompleta}   |   🔐 ${hashGenerado}`, 40, canvas.height - 80);
+      // 4. Sello circular VentaniYA
+      tCtx.save();
+      const stampX = w - 150;
+      const stampY = h - 120;
+      tCtx.strokeStyle = '#00f3ff';
+      tCtx.shadowBlur = 12;
+      tCtx.lineWidth = 4;
+      tCtx.beginPath();
+      tCtx.arc(stampX, stampY, 70, 0, Math.PI * 2);
+      tCtx.stroke();
 
-          // 4. Sello circular VentaniYA grande a la derecha
-          tCtx.save();
-          const stampX = canvas.width - 150;
-          const stampY = canvas.height - 120;
-          tCtx.strokeStyle = '#00f3ff';
-          tCtx.shadowBlur = 12;
-          tCtx.lineWidth = 4;
-          tCtx.beginPath();
-          tCtx.arc(stampX, stampY, 70, 0, Math.PI * 2);
-          tCtx.stroke();
+      tCtx.font = '900 13px "Orbitron", sans-serif';
+      tCtx.fillStyle = '#00f3ff';
+      tCtx.textAlign = 'center';
+      tCtx.fillText("VentaniYA", stampX, stampY - 18);
+      tCtx.font = '700 11px "Roboto", sans-serif';
+      tCtx.fillText("OFICIAL", stampX, stampY + 2);
+      tCtx.font = '900 18px "Orbitron", sans-serif';
+      tCtx.fillText("1001", stampX, stampY + 26);
+      tCtx.restore();
 
-          tCtx.font = '900 13px "Orbitron", sans-serif';
-          tCtx.fillStyle = '#00f3ff';
-          tCtx.textAlign = 'center';
-          tCtx.fillText("VentaniYA", stampX, stampY - 18);
-          tCtx.font = '700 11px "Roboto", sans-serif';
-          tCtx.fillText("OFICIAL", stampX, stampY + 2);
-          tCtx.font = '900 18px "Orbitron", sans-serif';
-          tCtx.fillText("1001", stampX, stampY + 26);
-          tCtx.restore();
+      // 5. Cuadro comercial superior editable
+      tCtx.fillStyle = 'rgba(12, 15, 29, 0.90)';
+      tCtx.strokeStyle = '#00f3ff';
+      tCtx.lineWidth = 2;
+      tCtx.fillRect(35, 30, w - 70, 100);
+      tCtx.strokeRect(35, 30, w - 70, 100);
 
-          // 5. Cuadro comercial superior
-          tCtx.fillStyle = 'rgba(12, 15, 29, 0.90)';
-          tCtx.strokeStyle = '#00f3ff';
-          tCtx.lineWidth = 2;
-          tCtx.fillRect(35, 30, canvas.width - 70, 100);
-          tCtx.strokeRect(35, 30, canvas.width - 70, 100);
-
-          tCtx.textAlign = 'left';
-          tCtx.font = '900 24px "Roboto", sans-serif';
-          tCtx.fillStyle = '#ffffff';
-          tCtx.shadowBlur = 0;
-          tCtx.fillText(`📍 Dir: ${dir}`, 60, 70);
-          tCtx.fillText(`📞 Tel: ${tel}`, 60, 108);
-
-          // Mostrar canvas y botón de descarga
-          canvas.style.display = 'block';
-          const btnDescargar = document.getElementById('btnDescargar');
-          btnDescargar.style.display = 'block';
-
-          // Preparar enlace de descarga directa
-          const imageURL = canvas.toDataURL('image/jpeg', 0.9);
-          const downloadLink = document.getElementById('downloadLink');
-          downloadLink.href = imageURL;
-          downloadLink.download = `aviso_ventaniya_${Date.now()}.jpg`;
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+      tCtx.textAlign = 'left';
+      tCtx.font = '900 24px "Roboto", sans-serif';
+      tCtx.fillStyle = '#ffffff';
+      tCtx.shadowBlur = 0;
+      tCtx.fillText(`📍 Dir: ${dir}`, 60, 70);
+      tCtx.fillText(`📞 Tel: ${tel}`, 60, 108);
     }
 
     function hashCode(str) {
@@ -265,6 +347,8 @@
       }
       return hash;
     }
+
+    inicializarSistema();
   </script>
 </body>
 </html>
