@@ -39,39 +39,6 @@
       margin-bottom: 25px;
     }
 
-    /* Panel de control editable superior */
-    .control-panel {
-      background: var(--panel-bg);
-      border: 2px solid rgba(0, 243, 255, 0.4);
-      border-radius: 12px;
-      padding: 20px;
-      max-width: 1200px;
-      margin: 0 auto 30px auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 15px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-    }
-
-    .control-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 0.85rem;
-      color: var(--neon-cyan);
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 700;
-    }
-
-    .control-group input {
-      width: 100%;
-      padding: 10px 14px;
-      border-radius: 6px;
-      border: 1px solid #2d3748;
-      background: #0f1322;
-      color: #fff;
-      font-size: 1rem;
-    }
-
     .vitrina-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
@@ -139,19 +106,7 @@
 <body>
 
   <h1>🏢 Vidriera VentaniYA — Agency Protoc System</h1>
-  <p class="sub">Sincronización automatizada con tu repositorio, reloj en vivo y datos editables.</p>
-
-  <!-- Panel editable superior -->
-  <div class="control-panel">
-    <div class="control-group">
-      <label>📍 Dirección Comercial:</label>
-      <input type="text" id="inputDir" value="Paseo - Local ">
-    </div>
-    <div class="control-group">
-      <label>📞 Teléfono / Contacto:</label>
-      <input type="text" id="inputTel" value="+54 9 223 ">
-    </div>
-  </div>
+  <p class="sub">Sincronización automatizada con tu repositorio y reloj en vivo.</p>
 
   <div id="status" class="status-msg">Conectando con el repositorio 'avisosvidriera'...</div>
 
@@ -248,8 +203,6 @@
     }
 
     function loopRelojEnVivo() {
-      const dir = document.getElementById('inputDir').value;
-      const tel = document.getElementById('inputTel').value;
       const now = new Date();
 
       const fechaCompleta = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -260,23 +213,21 @@
       const tiempoPreciso = `${horas}:${minutos}:${segundos}.${milisegundos}`;
 
       for (const item of listaAvisos) {
-        dibujarCanvasFrame(item.ctx, item.img, item.hash, tiempoPreciso, fechaCompleta, dir, tel);
+        dibujarCanvasFrame(item.ctx, item.img, item.hash, tiempoPreciso, fechaCompleta);
       }
 
       requestAnimationFrame(loopRelojEnVivo);
     }
 
     function renderizarFrameUnico(item) {
-      const dir = document.getElementById('inputDir').value;
-      const tel = document.getElementById('inputTel').value;
       const now = new Date();
       const fechaCompleta = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
       const tiempoPreciso = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}.${String(now.getMilliseconds()).padStart(3,'0')}`;
       
-      dibujarCanvasFrame(item.ctx, item.img, item.hash, tiempoPreciso, fechaCompleta, dir, tel);
+      dibujarCanvasFrame(item.ctx, item.img, item.hash, tiempoPreciso, fechaCompleta);
     }
 
-    function dibujarCanvasFrame(tCtx, img, hashGenerado, tiempoPreciso, fechaCompleta, dir, tel) {
+    function dibujarCanvasFrame(tCtx, img, hashGenerado, tiempoPreciso, fechaCompleta) {
       const w = 1200;
       const h = 900;
 
@@ -301,7 +252,7 @@
       tCtx.font = '700 22px "Roboto", sans-serif';
       tCtx.fillStyle = '#ffffff';
       tCtx.shadowBlur = 5;
-      tCtx.fillText(`📅 ${fechaCompleta}   |   🔐 ${hashGenerado}`, 40, h - 80);
+      tCtx.fillText(`📅 ${fechaCompleta}    |    🔐 ${hashGenerado}`, 40, h - 80);
 
       // 4. Sello circular VentaniYA
       tCtx.save();
@@ -323,20 +274,6 @@
       tCtx.font = '900 18px "Orbitron", sans-serif';
       tCtx.fillText("1001", stampX, stampY + 26);
       tCtx.restore();
-
-      // 5. Cuadro comercial superior editable
-      tCtx.fillStyle = 'rgba(12, 15, 29, 0.90)';
-      tCtx.strokeStyle = '#00f3ff';
-      tCtx.lineWidth = 2;
-      tCtx.fillRect(35, 30, w - 70, 100);
-      tCtx.strokeRect(35, 30, w - 70, 100);
-
-      tCtx.textAlign = 'left';
-      tCtx.font = '900 24px "Roboto", sans-serif';
-      tCtx.fillStyle = '#ffffff';
-      tCtx.shadowBlur = 0;
-      tCtx.fillText(`📍 Dir: ${dir}`, 60, 70);
-      tCtx.fillText(`📞 Tel: ${tel}`, 60, 108);
     }
 
     function hashCode(str) {
